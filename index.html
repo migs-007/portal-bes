@@ -12,7 +12,6 @@
             --primary: #1a252f;
             --animal: #c0392b; 
             --lixo: #d35400;   
-            --bg-dark: #2c3e50;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,7 +34,7 @@
         .overlay {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); /* Fundo bem escuro */
+            background: rgba(0, 0, 0, 0.85);
             z-index: -1;
         }
 
@@ -52,30 +51,58 @@
             border-radius: 20px; cursor: pointer;
             width: 280px; transition: 0.3s;
         }
-        .menu-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.2); }
 
         /* TELA DO MAPA */
         #map-screen { display: none; height: 100vh; flex-direction: column; }
+        
         header {
             background: #111; height: 70px;
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; border-bottom: 1px solid #333; color: white;
+            z-index: 1000;
         }
 
-        main { display: flex; flex: 1; overflow: hidden; }
-        #sidebar { width: 350px; background: #1e1e1e; padding: 20px; color: #ccc; }
-        #map { flex: 1; height: 100%; background: #222; }
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+        #sidebar { width: 350px; background: #1e1e1e; padding: 20px; color: #ccc; z-index: 10; }
+        
+        /* CONTAINER DO MAPA E MIRA */
+        #map-container { flex: 1; position: relative; height: 100%; }
+        #map { height: 100%; width: 100%; background: #222; }
+
+        /* MIRA DE MARCAÇÃO (CENTRO DO MAPA) */
+        .centro-marker {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            pointer-events: none; /* Não atrapalha o clique no mapa */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mira-ponto {
+            width: 10px;
+            height: 10px;
+            background: red;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .mira-linha-v { width: 2px; height: 40px; background: rgba(255,255,255,0.5); position: absolute; }
+        .mira-linha-h { width: 40px; height: 2px; background: rgba(255,255,255,0.5); position: absolute; }
 
         .btn-reg {
             width: 100%; padding: 15px; border: none; border-radius: 10px;
             color: white; font-weight: bold; cursor: pointer; margin-bottom: 20px;
         }
 
-        /* RESPONSIVIDADE CELULAR */
         @media (max-width: 768px) {
             body, html { overflow: auto; }
             main { flex-direction: column; }
-            #map { height: 60vh; width: 100%; }
+            #map-container { height: 60vh; min-height: 400px; }
             #sidebar { width: 100%; }
         }
     </style>
@@ -103,14 +130,23 @@
 
     <div id="map-screen">
         <header>
-            <button onclick="location.reload()" style="background:none; border:1px solid #555; color:white; padding:8px 15px; cursor:pointer;">Voltar</button>
-            <h2 id="map-title">MAPA</h2>
-            <div></div>
+            <button onclick="location.reload()" style="background:none; border:1px solid #555; color:white; padding:8px 15px; cursor:pointer; border-radius: 5px;">Sair</button>
+            <h2 id="map-title" style="font-size: 1.2rem;">MAPA</h2>
+            <div style="width: 50px;"></div>
         </header>
         <main>
-            <div id="map"></div>
+            <div id="map-container">
+                <div id="map"></div>
+                <!-- Mira Visual -->
+                <div class="centro-marker">
+                    <div class="mira-linha-v"></div>
+                    <div class="mira-linha-h"></div>
+                    <div class="mira-ponto"></div>
+                </div>
+            </div>
             <section id="sidebar">
-                <button id="btn-reg" class="btn-reg" onclick="registrar()">+ REGISTRAR</button>
+                <p style="font-size: 0.8rem; margin-bottom: 10px; color: #888;">Posicione a mira vermelha no local e clique abaixo:</p>
+                <button id="btn-reg" class="btn-reg" onclick="registrar()">+ REGISTRAR OCORRÊNCIA</button>
                 <div id="lista"></div>
             </section>
         </main>
@@ -122,22 +158,27 @@
         function abrirMapa(titulo, cor) {
             document.getElementById('menu-screen').style.display = 'none';
             document.getElementById('map-screen').style.display = 'flex';
-            document.getElementById('map-title').innerText = titulo;
+            document.getElementById('map-title').innerText = titulo.toUpperCase();
             document.getElementById('btn-reg').style.backgroundColor = cor;
+            
             if (!map) {
                 map = L.map('map').setView([-21.9932, -48.3906], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             }
-            setTimeout(() => { map.invalidateSize(); }, 200);
+            setTimeout(() => { map.invalidateSize(); }, 300);
         }
 
         function registrar() {
-            const desc = prompt("O que deseja registrar?");
+            const desc = prompt("O que deseja registrar neste ponto exato?");
             if(desc) {
-                L.marker(map.getCenter()).addTo(map).bindPopup(desc).openPopup();
+                // Pega a coordenada central onde a mira está apontando
+                const centro = map.getCenter();
+                
+                L.marker(centro).addTo(map).bindPopup(desc).openPopup();
+                
                 const item = document.createElement('div');
-                item.style.padding = "10px; border-bottom: 1px solid #333";
-                item.innerHTML = `<strong>Novo:</strong> ${desc}`;
+                item.style.cssText = "padding: 12px; border-bottom: 1px solid #333; background: #252525; margin-bottom: 5px; border-radius: 5px;";
+                item.innerHTML = `<strong>Registro:</strong> ${desc}`;
                 document.getElementById('lista').prepend(item);
             }
         }

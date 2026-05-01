@@ -9,34 +9,35 @@
     
     <style>
         :root {
-            --primary: #2c3e50;
-            --animal: #e74c3c;
-            --light: #f4f7f6;
+            /* Cores mais escuras e profissionais */
+            --primary: #1a252f;
+            --animal: #c0392b; /* Vermelho escuro */
+            --lixo: #d35400;   /* Laranja queimado */
+            --bg-dark: #2c3e50;
+            --text-light: #ecf0f1;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Ajuste base para não bugar o PC */
-        html, body { 
+        body, html { 
             height: 100%; 
             width: 100%; 
-            font-family: 'Segoe UI', sans-serif;
-            background: var(--light);
-            overflow: hidden; /* Trava no PC, liberamos no Celular via Media Query */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--primary);
+            overflow: hidden; 
         }
 
-        /* --- MENU INICIAL --- */
+        /* --- TELA INICIAL --- */
         #menu-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            width: 100%;
+            width: 100vw;
             position: relative;
             color: white;
-            padding: 20px;
-            z-index: 5000;
+            text-align: center;
         }
 
         .bg-fundo {
@@ -51,115 +52,33 @@
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.75); /* Escurecido para destacar o texto */
             z-index: -1;
         }
 
         .menu-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 1000px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 90%;
+            max-width: 1100px;
         }
 
         .menu-card {
-            background: white;
-            color: var(--primary);
-            padding: 30px;
-            border-radius: 20px;
-            cursor: pointer;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        /* --- TELA DO MAPA --- */
-        #map-screen { 
-            display: none; 
-            flex-direction: column; 
-            height: 100vh; 
-            width: 100%;
-        }
-
-        header {
-            height: 70px;
-            background: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        /* Estrutura Principal */
-        main { 
-            display: flex; 
-            flex: 1; 
-            height: calc(100vh - 70px);
-        }
-
-        #map { 
-            flex: 1; 
-            height: 100%; 
-        }
-
-        #sidebar { 
-            width: 380px; 
-            background: white; 
-            padding: 20px; 
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #ddd;
-        }
-
-        .btn-reg {
-            width: 100%;
-            padding: 20px;
-            border: none;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 20px;
+            padding: 40px 20px;
+            border-radius: 24px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
         }
+        .menu-card:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-5px); }
+        .menu-card:active { transform: scale(0.95); }
 
-        #lista-feed {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        /* --- VERSÃO CELULAR (MOBILE DEFINITIVO) --- */
-        @media (max-width: 768px) {
-            html, body { overflow: auto; } /* Libera a rolagem do dedo */
-            
-            #map-screen { height: auto; display: none; }
-            
-            main { 
-                flex-direction: column; 
-                height: auto; 
-                display: block; 
-            }
-
-            #map { 
-                width: 100%; 
-                height: 70vh; /* Mapa ocupa 70% da altura da tela inicial */
-                position: relative;
-            }
-
-            #sidebar { 
-                width: 100%; 
-                height: auto; 
-                padding: 20px;
-                border-left: none;
-            }
-
-            .menu-container { grid-template-columns: 1fr; }
-        }
-
-        /* Notificação */
+        /* --- ALERTA --- */
         #global-alert {
             position: fixed;
             top: -100px;
@@ -170,56 +89,121 @@
             background: var(--animal);
             color: white;
             padding: 20px;
-            border-radius: 15px;
-            z-index: 9999;
+            border-radius: 16px;
+            z-index: 5000;
             text-align: center;
             font-weight: bold;
-            transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         #global-alert.active { top: 20px; }
+
+        /* --- TELA DO MAPA --- */
+        #map-screen { display: none; height: 100vh; flex-direction: column; background: #111; }
+
+        header {
+            background: #1a1a1a; 
+            height: 75px;
+            padding: 0 25px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid #333;
+            color: white;
+            z-index: 1000;
+        }
+
+        main { display: flex; flex: 1; overflow: hidden; }
+
+        #sidebar { 
+            width: 400px; 
+            background: #1e1e1e; 
+            padding: 25px; 
+            display: flex; 
+            flex-direction: column; 
+            border-right: 1px solid #333;
+            color: #ccc;
+        }
+
+        #map { flex: 1; height: 100%; width: 100%; filter: grayscale(0.2) contrast(1.1); }
+
+        .btn-reg {
+            padding: 22px; 
+            border: none; 
+            border-radius: 15px; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 1.1rem;
+            cursor: pointer; 
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #lista { overflow-y: auto; flex: 1; }
+        .alert-item {
+            background: #252525;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 6px solid #555;
+            color: #eee;
+        }
+
+        /* --- MOBILE --- */
+        @media (max-width: 768px) {
+            body, html { overflow: auto; }
+            #map-screen { height: auto; display: none; }
+            main { display: block; height: auto; }
+            #map { height: 60vh; }
+            #sidebar { width: 100%; height: auto; border-right: none; }
+            header { position: sticky; top: 0; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="global-alert">🚨 ALERTA GERAL: NOVO REGISTRO!</div>
+    <div id="global-alert">🚨 ALERTA ATIVO</div>
 
-    <!-- MENU -->
+    <!-- TELA INICIAL -->
     <div id="menu-screen">
-        <img src="fundo.jpg" class="bg-fundo" alt="Boa Esperança do Sul">
+        <img src="fundo.jpg" alt="Boa Esperança" class="bg-fundo">
         <div class="overlay"></div>
-        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Portal Comunitário</h1>
-        <p style="font-size: 1.2rem; margin-bottom: 40px; opacity: 0.9;">JEPP 2026 - Boa Esperança do Sul</p>
         
+        <h1 style="font-size: 2.8rem; margin-bottom: 10px;">Portal Comunitário BES</h1>
+        <p style="margin-bottom: 50px; font-size: 1.1rem; color: #bbb; letter-spacing: 2px;">JEPP 2026 • 8º ANO</p>
+
         <div class="menu-container">
-            <div class="menu-card" onclick="abrirMapa('Animais', '#e74c3c')">
-                <span style="font-size: 3rem;">🐾</span>
-                <h3 style="margin-top:10px">SOS Animais</h3>
+            <div class="menu-card" onclick="abrirMapa('SOS Animais', 'var(--animal)')">
+                <span style="font-size: 60px;">🐾</span>
+                <h2 style="margin: 15px 0 10px 0;">SOS Animais</h2>
+                <p style="color: #aaa; font-size: 0.9rem;">Cachorros, Gatos e Outros</p>
             </div>
-            <div class="menu-card" onclick="abrirMapa('Descarte', '#f39c12')">
-                <span style="font-size: 3rem;">🗑️</span>
-                <h3 style="margin-top:10px">Lixo / Entulho</h3>
+            <div class="menu-card" onclick="abrirMapa('Eco-Ponto', 'var(--lixo)')">
+                <span style="font-size: 60px;">🗑️</span>
+                <h2 style="margin: 15px 0 10px 0;">Lixo e Entulho</h2>
+                <p style="color: #aaa; font-size: 0.9rem;">Pontos de Descarte Regular</p>
             </div>
         </div>
     </div>
 
-    <!-- MAPA -->
+    <!-- TELA DO MAPA -->
     <div id="map-screen">
         <header>
-            <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 8px; border: 1px solid #ddd; cursor:pointer; font-weight:bold;">← SAIR</button>
-            <h2 id="map-title" style="color: var(--primary);">Mapa</h2>
-            <div style="text-align: right; line-height: 1;">
-                <strong style="color: var(--animal);">LIVE</strong><br><small>Sincronizado</small>
-            </div>
+            <button onclick="location.reload()" style="background: transparent; border: 1px solid #444; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold;">← VOLTAR</button>
+            <h2 id="map-title">MAPA</h2>
+            <div style="width: 50px;"></div>
         </header>
-        
+
         <main>
             <div id="map"></div>
-            
+
             <section id="sidebar">
-                <button id="btn-reg" class="btn-reg" onclick="lancarAlerta()">REGISTRAR OCORRÊNCIA</button>
-                <div id="lista-feed">
-                    <p style="text-align:center; color:#999; padding: 20px;">Role para ver o histórico de alertas ↓</p>
+                <button id="btn-reg" class="btn-reg" onclick="lancarAlerta()">+ Registrar Ocorrência</button>
+                
+                <h3 style="margin-bottom: 20px; font-size: 1.1rem; color: white;">HISTÓRICO LOCAL</h3>
+                <div id="lista">
+                    <p style="text-align: center; opacity: 0.5; padding: 20px;">Aguardando novos registros...</p>
                 </div>
             </section>
         </main>
@@ -228,55 +212,53 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         let map;
+        let corAtual;
 
-        function abrirMapa(cat, cor) {
+        function abrirMapa(titulo, cor) {
+            corAtual = cor;
             document.getElementById('menu-screen').style.display = 'none';
             document.getElementById('map-screen').style.display = 'flex';
-            document.getElementById('map-title').innerText = cat;
+            document.getElementById('map-title').innerText = titulo.toUpperCase();
             document.getElementById('btn-reg').style.backgroundColor = cor;
 
             if (!map) {
-                // Foco em Boa Esperança do Sul
                 map = L.map('map').setView([-21.9932, -48.3906], 15);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
             }
-            
+
             setTimeout(() => { map.invalidateSize(); }, 400);
         }
 
         function lancarAlerta() {
-            const msg = prompt("O que você deseja alertar a todos os usuários?");
-            if (msg) {
-                // Efeito de Notificação "Push" (Aparece em cima)
-                const alerta = document.getElementById('global-alert');
-                alerta.innerText = `🚨 ALERTA GERAL: ${msg.toUpperCase()}!`;
-                alerta.classList.add('active');
-                
-                // Remove o alerta após 5 segundos
-                setTimeout(() => { alerta.classList.remove('active'); }, 5000);
+            const info = prompt("Descreva a situação detalhadamente:");
+            
+            if (info) {
+                // Notificação Visual Estilo Mobile
+                const box = document.getElementById('global-alert');
+                box.style.backgroundColor = corAtual;
+                box.innerText = `🚨 NOVO REGISTRO: ${info.toUpperCase()}`;
+                box.classList.add('active');
+                setTimeout(() => { box.classList.remove('active'); }, 5000);
 
-                // Coloca o marcador no mapa
+                // Marcador no Mapa
                 L.marker(map.getCenter()).addTo(map)
-                    .bindPopup(`<b>ALERTA:</b><br>${msg}`)
+                    .bindPopup(`<b>Registro:</b><br>${info}`)
                     .openPopup();
 
-                // Adiciona ao feed de notícias
-                const feed = document.getElementById('lista-feed');
-                const box = document.createElement('div');
-                box.style.cssText = `
-                    padding: 15px; 
-                    background: #fff; 
-                    border-radius: 10px; 
-                    margin-bottom: 15px; 
-                    border-left: 8px solid ${document.getElementById('btn-reg').style.backgroundColor};
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-                `;
-                box.innerHTML = `<strong>${msg}</strong><br><small>Postado agora por um morador</small>`;
-                feed.prepend(box);
+                // Adiciona ao Feed Lateral
+                const feed = document.getElementById('lista');
+                if (feed.innerText.includes("Aguardando")) feed.innerHTML = "";
+                
+                const div = document.createElement('div');
+                div.className = 'alert-item';
+                div.style.borderLeftColor = corAtual;
+                div.innerHTML = `<strong>${info}</strong><br><small style="color:#777;">Publicado agora por Comunidade BES</small>`;
+                feed.prepend(div);
 
-                // Se for celular, rola a tela para mostrar o feed novo
-                if(window.innerWidth < 768) {
-                    box.scrollIntoView({ behavior: 'smooth' });
+                if (window.innerWidth < 768) {
+                    div.scrollIntoView({ behavior: 'smooth' });
                 }
             }
         }

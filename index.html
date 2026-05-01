@@ -76,34 +76,35 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 2000;
-            pointer-events: none; /* Não atrapalha o clique no mapa */
+            pointer-events: none; /* Não bloqueia o toque no mapa */
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .mira-ponto {
-            width: 10px;
-            height: 10px;
-            background: red;
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
             border-radius: 50%;
             border: 2px solid white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 8px rgba(255,0,0,0.8);
         }
 
-        .mira-linha-v { width: 2px; height: 40px; background: rgba(255,255,255,0.5); position: absolute; }
-        .mira-linha-h { width: 40px; height: 2px; background: rgba(255,255,255,0.5); position: absolute; }
+        .mira-linha-v { width: 2px; height: 30px; background: rgba(255,255,255,0.4); position: absolute; }
+        .mira-linha-h { width: 30px; height: 2px; background: rgba(255,255,255,0.4); position: absolute; }
 
         .btn-reg {
             width: 100%; padding: 15px; border: none; border-radius: 10px;
             color: white; font-weight: bold; cursor: pointer; margin-bottom: 20px;
+            text-transform: uppercase;
         }
 
         @media (max-width: 768px) {
             body, html { overflow: auto; }
             main { flex-direction: column; }
-            #map-container { height: 60vh; min-height: 400px; }
-            #sidebar { width: 100%; }
+            #map-container { height: 60vh; min-height: 350px; }
+            #sidebar { width: 100%; height: auto; }
         }
     </style>
 </head>
@@ -111,33 +112,33 @@
 
     <div id="menu-screen">
         <div class="overlay"></div>
-        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Portal Comunitário BES</h1>
-        <p style="margin-bottom: 40px; color: #aaa;">JEPP 2026 • 8º Ano</p>
+        <h1 style="font-size: 2.2rem; margin-bottom: 10px;">Portal Comunitário BES</h1>
+        <p style="margin-bottom: 40px; color: #888;">JEPP 2026 • 8º Ano</p>
 
         <div class="menu-container">
             <div class="menu-card" onclick="abrirMapa('SOS Animais', 'var(--animal)')">
                 <span style="font-size: 50px;">🐾</span>
                 <h3>SOS Animais</h3>
-                <p style="font-size: 0.8rem; color: #bbb;">Cachorros, Gatos e Outros</p>
+                <p style="font-size: 0.8rem; color: #888;">Cachorros, Gatos e Outros</p>
             </div>
             <div class="menu-card" onclick="abrirMapa('Eco-Ponto', 'var(--lixo)')">
                 <span style="font-size: 50px;">🗑️</span>
                 <h3>Lixo e Entulho</h3>
-                <p style="font-size: 0.8rem; color: #bbb;">Pontos de Descarte Regular</p>
+                <p style="font-size: 0.8rem; color: #888;">Pontos de Descarte Regular</p>
             </div>
         </div>
     </div>
 
     <div id="map-screen">
         <header>
-            <button onclick="location.reload()" style="background:none; border:1px solid #555; color:white; padding:8px 15px; cursor:pointer; border-radius: 5px;">Sair</button>
-            <h2 id="map-title" style="font-size: 1.2rem;">MAPA</h2>
+            <button onclick="location.reload()" style="background:none; border:1px solid #444; color:white; padding:8px 15px; cursor:pointer; border-radius: 5px;">Sair</button>
+            <h2 id="map-title" style="font-size: 1.1rem;">MAPA</h2>
             <div style="width: 50px;"></div>
         </header>
         <main>
             <div id="map-container">
                 <div id="map"></div>
-                <!-- Mira Visual -->
+                <!-- Mira Visual Fixa -->
                 <div class="centro-marker">
                     <div class="mira-linha-v"></div>
                     <div class="mira-linha-h"></div>
@@ -145,8 +146,10 @@
                 </div>
             </div>
             <section id="sidebar">
-                <p style="font-size: 0.8rem; margin-bottom: 10px; color: #888;">Posicione a mira vermelha no local e clique abaixo:</p>
-                <button id="btn-reg" class="btn-reg" onclick="registrar()">+ REGISTRAR OCORRÊNCIA</button>
+                <p style="font-size: 0.85rem; margin-bottom: 12px; color: #aaa; text-align: center;">
+                    Posicione o ponto vermelho no local exato:
+                </p>
+                <button id="btn-reg" class="btn-reg" onclick="registrar()">+ REGISTRAR NO LOCAL</button>
                 <div id="lista"></div>
             </section>
         </main>
@@ -162,6 +165,7 @@
             document.getElementById('btn-reg').style.backgroundColor = cor;
             
             if (!map) {
+                // Foco em Boa Esperança do Sul
                 map = L.map('map').setView([-21.9932, -48.3906], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             }
@@ -169,16 +173,16 @@
         }
 
         function registrar() {
-            const desc = prompt("O que deseja registrar neste ponto exato?");
+            const desc = prompt("O que você está vendo neste ponto?");
             if(desc) {
-                // Pega a coordenada central onde a mira está apontando
+                // Captura a coordenada exata do centro onde a mira está parada
                 const centro = map.getCenter();
                 
-                L.marker(centro).addTo(map).bindPopup(desc).openPopup();
+                L.marker(centro).addTo(map).bindPopup(`<b>Registro:</b><br>${desc}`).openPopup();
                 
                 const item = document.createElement('div');
-                item.style.cssText = "padding: 12px; border-bottom: 1px solid #333; background: #252525; margin-bottom: 5px; border-radius: 5px;";
-                item.innerHTML = `<strong>Registro:</strong> ${desc}`;
+                item.style.cssText = "padding: 15px; border-bottom: 1px solid #333; background: #252525; margin-bottom: 8px; border-radius: 8px;";
+                item.innerHTML = `<small style="color: #666;">Novo alerta:</small><br><strong>${desc}</strong>`;
                 document.getElementById('lista').prepend(item);
             }
         }

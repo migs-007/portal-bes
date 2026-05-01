@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Portal BES - JEPP 2026</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -16,11 +16,13 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body, html { 
+        /* Ajuste base para não bugar o PC */
+        html, body { 
             height: 100%; 
             width: 100%; 
-            font-family: 'Segoe UI', sans-serif; 
+            font-family: 'Segoe UI', sans-serif;
             background: var(--light);
+            overflow: hidden; /* Trava no PC, liberamos no Celular via Media Query */
         }
 
         /* --- MENU INICIAL --- */
@@ -29,12 +31,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
             width: 100%;
             position: relative;
             color: white;
-            text-align: center;
             padding: 20px;
+            z-index: 5000;
         }
 
         .bg-fundo {
@@ -55,146 +57,169 @@
 
         .menu-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             width: 100%;
-            max-width: 800px;
+            max-width: 1000px;
         }
 
         .menu-card {
             background: white;
             color: var(--primary);
-            padding: 25px;
-            border-radius: 15px;
+            padding: 30px;
+            border-radius: 20px;
             cursor: pointer;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         /* --- TELA DO MAPA --- */
         #map-screen { 
             display: none; 
             flex-direction: column; 
-            min-height: 100vh; 
+            height: 100vh; 
+            width: 100%;
         }
 
         header {
+            height: 70px;
             background: white;
-            padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 2000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
         }
 
-        /* --- ESTRUTURA PC (Lado a Lado) --- */
+        /* Estrutura Principal */
         main { 
             display: flex; 
             flex: 1; 
+            height: calc(100vh - 70px);
         }
 
         #map { 
             flex: 1; 
-            height: calc(100vh - 70px); /* Altura total menos o header */
-            position: sticky;
-            top: 70px;
+            height: 100%; 
         }
 
         #sidebar { 
-            width: 350px; 
+            width: 380px; 
             background: white; 
             padding: 20px; 
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #ddd;
         }
 
         .btn-reg {
             width: 100%;
-            padding: 15px;
+            padding: 20px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             color: white;
             font-weight: bold;
+            font-size: 1.1rem;
             margin-bottom: 20px;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        /* --- ESTRUTURA CELULAR (Vertical com Rolagem) --- */
-        @media (max-width: 768px) {
-            #map-screen { 
-                overflow-y: auto; /* Permite rolar a tela toda */
-                display: none; 
-            }
+        #lista-feed {
+            flex: 1;
+            overflow-y: auto;
+        }
 
+        /* --- VERSÃO CELULAR (MOBILE DEFINITIVO) --- */
+        @media (max-width: 768px) {
+            html, body { overflow: auto; } /* Libera a rolagem do dedo */
+            
+            #map-screen { height: auto; display: none; }
+            
             main { 
                 flex-direction: column; 
-                display: block; /* Quebra a trava do flex */
+                height: auto; 
+                display: block; 
             }
 
             #map { 
                 width: 100%; 
-                height: 60vh; /* Mapa maior (60% da altura da tela) */
+                height: 70vh; /* Mapa ocupa 70% da altura da tela inicial */
                 position: relative;
-                top: 0;
             }
 
             #sidebar { 
                 width: 100%; 
-                min-height: 40vh; 
-                overflow: visible; /* Deixa o conteúdo esticar a página */
+                height: auto; 
+                padding: 20px;
+                border-left: none;
             }
 
-            .menu-container {
-                grid-template-columns: 1fr;
-            }
+            .menu-container { grid-template-columns: 1fr; }
         }
 
-        /* Alerta Global */
+        /* Notificação */
         #global-alert {
             position: fixed;
             top: -100px;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
+            max-width: 500px;
             background: var(--animal);
             color: white;
-            padding: 15px;
-            border-radius: 10px;
-            z-index: 3000;
+            padding: 20px;
+            border-radius: 15px;
+            z-index: 9999;
             text-align: center;
-            transition: 0.5s;
+            font-weight: bold;
+            transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-
-        #global-alert.active { top: 80px; }
+        #global-alert.active { top: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="global-alert">🚨 NOVO ALERTA ENVIADO!</div>
+    <div id="global-alert">🚨 ALERTA GERAL: NOVO REGISTRO!</div>
 
+    <!-- MENU -->
     <div id="menu-screen">
-        <img src="fundo.jpg" alt="" class="bg-fundo">
+        <img src="fundo.jpg" class="bg-fundo" alt="Boa Esperança do Sul">
         <div class="overlay"></div>
-        <h1>Portal Comunitário BES</h1>
-        <p style="margin-bottom: 30px;">Inovação JEPP 2026</p>
+        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Portal Comunitário</h1>
+        <p style="font-size: 1.2rem; margin-bottom: 40px; opacity: 0.9;">JEPP 2026 - Boa Esperança do Sul</p>
+        
         <div class="menu-container">
-            <div class="menu-card" onclick="abrirMapa('Animais', '#e74c3c')"><span>🐾</span><h3>Animais</h3></div>
-            <div class="menu-card" onclick="abrirMapa('Descarte', '#f39c12')"><span>🗑️</span><h3>Descarte</h3></div>
+            <div class="menu-card" onclick="abrirMapa('Animais', '#e74c3c')">
+                <span style="font-size: 3rem;">🐾</span>
+                <h3 style="margin-top:10px">SOS Animais</h3>
+            </div>
+            <div class="menu-card" onclick="abrirMapa('Descarte', '#f39c12')">
+                <span style="font-size: 3rem;">🗑️</span>
+                <h3 style="margin-top:10px">Lixo / Entulho</h3>
+            </div>
         </div>
     </div>
 
+    <!-- MAPA -->
     <div id="map-screen">
         <header>
-            <button onclick="location.reload()" style="padding: 8px 15px; cursor: pointer;">← Sair</button>
-            <h3 id="map-title">Mapa</h3>
-            <small>8º Ano</small>
+            <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 8px; border: 1px solid #ddd; cursor:pointer; font-weight:bold;">← SAIR</button>
+            <h2 id="map-title" style="color: var(--primary);">Mapa</h2>
+            <div style="text-align: right; line-height: 1;">
+                <strong style="color: var(--animal);">LIVE</strong><br><small>Sincronizado</small>
+            </div>
         </header>
+        
         <main>
             <div id="map"></div>
+            
             <section id="sidebar">
-                <button id="btn-reg" class="btn-reg" onclick="registrar()">REGISTRAR OCORRÊNCIA</button>
+                <button id="btn-reg" class="btn-reg" onclick="lancarAlerta()">REGISTRAR OCORRÊNCIA</button>
                 <div id="lista-feed">
-                    <p style="color: #999; text-align: center;">Role para ver os registros recentes.</p>
+                    <p style="text-align:center; color:#999; padding: 20px;">Role para ver o histórico de alertas ↓</p>
                 </div>
             </section>
         </main>
@@ -211,33 +236,47 @@
             document.getElementById('btn-reg').style.backgroundColor = cor;
 
             if (!map) {
+                // Foco em Boa Esperança do Sul
                 map = L.map('map').setView([-21.9932, -48.3906], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             }
-            setTimeout(() => { map.invalidateSize(); }, 300);
+            
+            setTimeout(() => { map.invalidateSize(); }, 400);
         }
 
-        function registrar() {
-            const animal = prompt("O que você deseja alertar?");
-            if (animal) {
-                // Simulação de Notificação Global
+        function lancarAlerta() {
+            const msg = prompt("O que você deseja alertar a todos os usuários?");
+            if (msg) {
+                // Efeito de Notificação "Push" (Aparece em cima)
                 const alerta = document.getElementById('global-alert');
-                alerta.innerText = `🚨 ALERTA GERAL: ${animal.toUpperCase()}!`;
+                alerta.innerText = `🚨 ALERTA GERAL: ${msg.toUpperCase()}!`;
                 alerta.classList.add('active');
-                setTimeout(() => alerta.classList.remove('active'), 4000);
-
-                // Marcador no centro do mapa atual
-                L.marker(map.getCenter()).addTo(map).bindPopup(animal).openPopup();
-
-                // Adiciona ao feed (embaixo do mapa no celular)
-                const item = document.createElement('div');
-                item.style.cssText = "padding: 15px; background: white; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid red; box-shadow: 0 2px 5px rgba(0,0,0,0.05)";
-                item.innerHTML = `<strong>Ocorrência:</strong> ${animal}<br><small>Agora mesmo</small>`;
-                document.getElementById('lista-feed').prepend(item);
                 
-                // No celular, rola automaticamente para o feed após registrar
+                // Remove o alerta após 5 segundos
+                setTimeout(() => { alerta.classList.remove('active'); }, 5000);
+
+                // Coloca o marcador no mapa
+                L.marker(map.getCenter()).addTo(map)
+                    .bindPopup(`<b>ALERTA:</b><br>${msg}`)
+                    .openPopup();
+
+                // Adiciona ao feed de notícias
+                const feed = document.getElementById('lista-feed');
+                const box = document.createElement('div');
+                box.style.cssText = `
+                    padding: 15px; 
+                    background: #fff; 
+                    border-radius: 10px; 
+                    margin-bottom: 15px; 
+                    border-left: 8px solid ${document.getElementById('btn-reg').style.backgroundColor};
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+                `;
+                box.innerHTML = `<strong>${msg}</strong><br><small>Postado agora por um morador</small>`;
+                feed.prepend(box);
+
+                // Se for celular, rola a tela para mostrar o feed novo
                 if(window.innerWidth < 768) {
-                    document.getElementById('sidebar').scrollIntoView({ behavior: 'smooth' });
+                    box.scrollIntoView({ behavior: 'smooth' });
                 }
             }
         }

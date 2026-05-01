@@ -257,5 +257,4 @@
             });
         }
     </script>
-</body>
-</html><img width="1698" height="926" alt="fundo png" src="https://github.com/user-attachments/assets/480a67c8-471e-4be3-9eb2-f6e2ab2f8780" />
+

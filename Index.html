@@ -5,8 +5,8 @@
 <title>CidadãoAtivo — Denúncias Urbanas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 /* ════════════════════════════════════════════
    VARIÁVEIS GLOBAIS
@@ -292,6 +292,7 @@ body {
     height:100%; overflow-y:auto; flex-shrink:0;
     display:flex; flex-direction:column;
   }
+  #btn-acessar-mapa, #btn-voltar-lista { display:none; }
   #map-col {
     flex:1; position:relative;
     overflow:hidden; height:100%;
@@ -334,9 +335,23 @@ body {
     overflow:hidden; height:100%;
   }
   #map-col {
-    /* Ocupa porção fixa do alto, NÃO rola */
-    flex:0 0 52vh;
+    display:none;
+    flex:1 1 auto; min-height:0;
     width:100%; position:relative; overflow:hidden;
+  }
+  #screen-main.mapa-aberto #sidebar { display:none; }
+  #screen-main.mapa-aberto #map-col { display:block; }
+  #btn-acessar-mapa {
+    display:flex; width:100%; justify-content:center; align-items:center; gap:8px;
+    margin:0 0 10px; padding:12px 16px; border:0; border-radius:12px;
+    background:linear-gradient(135deg,var(--green-deep),var(--green));
+    color:#fff; font:600 .9rem 'DM Sans',sans-serif; cursor:pointer;
+    box-shadow:0 4px 14px rgba(39,174,96,.22);
+  }
+  #btn-voltar-lista {
+    display:block; position:absolute; z-index:700; top:10px; left:10px;
+    padding:10px 13px; border:0; border-radius:10px; background:#fff;
+    color:#17452c; font-weight:700; box-shadow:0 2px 10px #0003; cursor:pointer;
   }
   #map { width:100%; height:100%; }
 
@@ -1009,6 +1024,118 @@ input.finp:focus { border-color:var(--green-dark); background:white; }
   .mactions   { flex-direction:column; }
   #modal      { padding:1.2rem; }
 }
+
+
+/* AJUSTES DE USABILIDADE — ANDROID / TELAS TOUCH */
+@media (max-width:768px) {
+  html, body { width:100%; height:100%; height:100dvh; }
+  #screen-main.active { height:100dvh; min-height:0; }
+  #map-col { flex-basis:32dvh; min-height:190px; max-height:300px; flex-shrink:0; }
+  #map { position:absolute; inset:0; width:100%; height:100%; min-height:190px; }
+  #sidebar { min-height:0; flex:1 1 auto; }
+  .sb-header { position:relative; top:auto; padding:12px 14px 10px; }
+  .sb-filter { position:relative; top:auto; padding:10px 12px; }
+  .filter-scroll { gap:8px; padding:2px 1px 6px; }
+  .f-btn { min-height:40px; padding:8px 13px; font-size:.76rem; display:inline-flex; align-items:center; justify-content:center; }
+  .feed-lbl { padding:10px 14px 8px; font-size:.68rem; }
+  .feed-list { padding:10px 12px 18px; gap:10px; }
+  .den-card { border-radius:12px; }
+  .card-body { padding:12px; }
+  .cat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .cat-btn { min-height:76px; padding:11px 8px; gap:6px; font-size:.78rem; }
+  .cat-btn .ci { font-size:1.55rem; line-height:1.2; }
+  .map-badge { top:10px; max-width:calc(100% - 100px); overflow:hidden; text-overflow:ellipsis; font-size:.62rem; padding:7px 11px; letter-spacing:.04em; }
+  #btn-registrar { bottom:max(12px, env(safe-area-inset-bottom)); min-height:46px; padding:11px 20px; font-size:.88rem; }
+  .leaflet-top.leaflet-right { top:58px; right:10px; }
+  .leaflet-control-zoom a { width:42px !important; height:42px !important; line-height:42px !important; font-size:22px !important; }
+  .leaflet-control-attribution { font-size:9px !important; }
+  .ch-line, #ch-dot { z-index:450; }
+}
+@media (max-width:380px) {
+  #map-col { flex-basis:29dvh; min-height:175px; }
+  #map { min-height:175px; }
+  .sb-top { gap:8px; }
+  .sb-name { font-size:.82rem; }
+  .btn-back { padding:8px 10px; }
+  .dashboard { gap:6px; }
+  .dc { padding:8px 4px; }
+  .dc-val { font-size:1.35rem; }
+  .f-btn { padding:8px 11px; }
+}
+@media (min-width:769px) {
+  #screen-main.active { min-width:0; }
+  #sidebar { min-height:0; }
+  #map-col { min-width:0; min-height:0; height:100%; flex:1 1 auto; position:relative; }
+  #map { display:block; z-index:1; }
+  #map { position:absolute; inset:0; width:100%; height:100%; }
+}
+
+
+/* MAPA MOBILE EM TELA INTEIRA — abre somente quando a pessoa toca em Acessar mapa */
+@media (max-width:768px) {
+  #screen-main.mapa-aberto {
+    display:flex;
+    flex-direction:column;
+    height:100dvh;
+    min-height:0;
+    overflow:hidden;
+  }
+  #screen-main.mapa-aberto #sidebar { display:none !important; }
+  #screen-main.mapa-aberto #map-col {
+    display:block !important;
+    position:relative;
+    flex:1 1 100% !important;
+    width:100%;
+    height:100%;
+    min-height:0 !important;
+    max-height:none !important;
+    flex-shrink:1 !important;
+    overflow:hidden;
+    animation:mapaEntrar .22s ease-out both;
+  }
+  #screen-main.mapa-aberto #map {
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    min-height:0 !important;
+  }
+  #screen-main.mapa-aberto #btn-voltar-lista {
+    top:calc(12px + env(safe-area-inset-top));
+    left:12px;
+    padding:11px 15px;
+    border-radius:14px;
+    font-size:.92rem;
+    backdrop-filter:blur(8px);
+  }
+  #screen-main.mapa-aberto .map-badge {
+    top:auto;
+    bottom:calc(82px + env(safe-area-inset-bottom));
+    left:50%;
+    transform:translateX(-50%);
+    max-width:calc(100% - 28px);
+    white-space:nowrap;
+    z-index:650;
+  }
+  #screen-main.mapa-aberto .leaflet-top.leaflet-right {
+    top:calc(68px + env(safe-area-inset-top));
+    right:12px;
+  }
+  #screen-main.mapa-aberto #btn-registrar {
+    bottom:calc(16px + env(safe-area-inset-bottom));
+    left:50%;
+    transform:translateX(-50%);
+    min-height:52px;
+    padding:13px 25px;
+    border-radius:999px;
+    box-shadow:0 8px 24px rgba(20,110,65,.28);
+  }
+}
+@keyframes mapaEntrar {
+  from { opacity:.75; transform:scale(.985); }
+  to { opacity:1; transform:scale(1); }
+}
+
 </style>
 </head>
 <body>
@@ -1461,6 +1588,8 @@ input.finp:focus { border-color:var(--green-dark); background:white; }
       </div>
     </div>
 
+    <button id="btn-acessar-mapa" type="button" onclick="abrirMapaMobile()">🗺️ Acessar mapa para marcar o local</button>
+
     <!-- Filtros rápidos -->
     <div class="sb-filter">
       <div class="filter-scroll" id="filtros">
@@ -1488,6 +1617,7 @@ input.finp:focus { border-color:var(--green-dark); background:white; }
 
   <!-- ── ÁREA DO MAPA ── -->
   <div id="map-col">
+    <button id="btn-voltar-lista" type="button" onclick="fecharMapaMobile()">← Voltar às denúncias</button>
     <div class="map-badge">🇧🇷 Brasil — Mova o mapa</div>
     <div id="map"></div>
 
@@ -2250,19 +2380,46 @@ function restaurarImagemSite(key) {
 }
 
 /* ── NAVEGAÇÃO ── */
+function ajustarTamanhoMapa() {
+  if (!mapa) return;
+  requestAnimationFrame(() => {
+    try { mapa.invalidateSize(true); } catch (e) { console.warn('Não foi possível redimensionar o mapa:', e); }
+  });
+}
+
 function abrirSistema() {
   document.getElementById('screen-menu').style.display = 'none';
   document.getElementById('screen-main').classList.add('active');
 
-  if (!mapa) {
-    /* Aguarda o layout ser calculado antes de inicializar o Leaflet */
-    requestAnimationFrame(() => setTimeout(iniciarMapa, 80));
-  } else {
-    setTimeout(() => mapa.invalidateSize(), 120);
+  if (window.innerWidth > 768) {
+    if (!mapa) {
+      requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(iniciarMapa, 160)));
+    } else {
+      setTimeout(ajustarTamanhoMapa, 100);
+      setTimeout(ajustarTamanhoMapa, 350);
+    }
   }
 
   renderFeed();
   atualizarDash();
+}
+
+function abrirMapaMobile() {
+  const tela = document.getElementById('screen-main');
+  tela.classList.add('mapa-aberto');
+  // Aguarda a transição para o mapa ocupar a tela antes de calcular os tiles.
+  if (!mapa) {
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(iniciarMapa, 180)));
+  } else {
+    setTimeout(ajustarTamanhoMapa, 100);
+    setTimeout(ajustarTamanhoMapa, 320);
+    setTimeout(ajustarTamanhoMapa, 650);
+  }
+}
+
+function fecharMapaMobile() {
+  document.getElementById('screen-main').classList.remove('mapa-aberto');
+  setTimeout(ajustarTamanhoMapa, 250);
 }
 
 function voltarMenu() {
@@ -2274,19 +2431,80 @@ function voltarMenu() {
 const BOA_ESPERANCA = [-21.9932, -48.3906];
 
 function iniciarMapa() {
+  const elementoMapa = document.getElementById('map');
+  if (!elementoMapa) return;
+  if (!window.L) {
+    atualizarBadge('⏳ Carregando mapa…');
+    if (!window.__leafletFallbackLoading) {
+      window.__leafletFallbackLoading = true;
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(css);
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => { window.__leafletFallbackLoading = false; iniciarMapa(); };
+      script.onerror = () => {
+        window.__leafletFallbackLoading = false;
+        atualizarBadge('⚠️ Não foi possível carregar o mapa. Verifique a internet.');
+      };
+      document.head.appendChild(script);
+    }
+    return;
+  }
+  if (mapa) { ajustarTamanhoMapa(); return; }
+  if (elementoMapa.clientWidth < 10 || elementoMapa.clientHeight < 10) {
+    setTimeout(iniciarMapa, 180);
+    return;
+  }
+
   /* Começa centralizado no Brasil enquanto tenta geolocalização */
-  mapa = L.map('map', {
-    center:  [-15.78, -47.93],
-    zoom:    5,
+  mapa = L.map(elementoMapa, {
+    center: [-15.78, -47.93],
+    zoom: 5,
     minZoom: 4,
     maxBounds: BRASIL_BOUNDS,
     maxBoundsViscosity: 0.9,
+    zoomControl: true,
+    preferCanvas: true,
   });
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 19,
+  /* Camada principal OpenStreetMap; alternativa CARTO Voyager, também baseada em dados OSM e com pontos de interesse. */
+  let camadaAtual = null;
+  let camadaAlternativaAtiva = false;
+  function ativarCamadaAlternativa() {
+    if (camadaAlternativaAtiva || !mapa) return;
+    camadaAlternativaAtiva = true;
+    if (camadaAtual) mapa.removeLayer(camadaAtual);
+    camadaAtual = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      attribution: '© OpenStreetMap contributors © CARTO',
+      maxZoom: 20,
+      crossOrigin: true
+    }).addTo(mapa);
+    camadaAtual.on('tileerror', () => atualizarBadge('⚠️ Falha ao carregar os mapas. Verifique a conexão/rede.'));
+    atualizarBadge('🗺️ Mapa — pontos de interesse');
+  }
+  camadaAtual = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 19, crossOrigin: true
   }).addTo(mapa);
+  let errosTiles = 0;
+  camadaAtual.on('tileerror', () => {
+    errosTiles++;
+    if (errosTiles >= 3) ativarCamadaAlternativa();
+  });
+  mapa.on('load', () => atualizarBadge('🇧🇷 Brasil — Mova o mapa'));
+
+  if (window.ResizeObserver) {
+    const observadorMapa = new ResizeObserver(() => {
+      if (elementoMapa.clientWidth > 0 && elementoMapa.clientHeight > 0) ajustarTamanhoMapa();
+    });
+    observadorMapa.observe(elementoMapa);
+  }
+  window.addEventListener('resize', ajustarTamanhoMapa, { passive:true });
+  window.addEventListener('orientationchange', () => setTimeout(ajustarTamanhoMapa, 250), { passive:true });
+  setTimeout(ajustarTamanhoMapa, 100);
+  setTimeout(ajustarTamanhoMapa, 500);
 
   mapa.zoomControl.setPosition('topright');
   denuncias.forEach(d => adicionarMarcador(d));
